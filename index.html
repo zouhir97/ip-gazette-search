@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>أداة البحث في جريدة العلامات</title>
+<style>
+:root{
+  --bg:#f6f5f2; --card:#ffffff; --sunk:#f0eeea; --ink:#23272b; --muted:#6c7176; --faint:#9a9ea2; --line:#e4e1da;
+  --accent:#34605f; --accent-ink:#ffffff; --accent-soft:#e8efee;
+  --warn:#8a6a2a; --warn-soft:#f5eedd; --shadow:0 1px 2px rgba(30,30,20,.05);
+  --k-app:#6d8fb3; --k-intl:#9585b3; --k-rapp:#bf9a63; --k-reg:#6f9a80; --k-ren:#a8a066; --k-rec:#b87d74;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#16181a; --card:#1e2124; --sunk:#25292c; --ink:#e4e6e7; --muted:#9aa0a5; --faint:#6e7378; --line:#2f3438;
+    --accent:#7fb3b0; --accent-ink:#0f1c1b; --accent-soft:#233130;
+    --warn:#d4b36a; --warn-soft:#2e2819; --shadow:none;
+    --k-app:#85a9cc; --k-intl:#aea0c9; --k-rapp:#cdaa75; --k-reg:#86b196; --k-ren:#bdb67c; --k-rec:#cc938a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16181a; --card:#1e2124; --sunk:#25292c; --ink:#e4e6e7; --muted:#9aa0a5; --faint:#6e7378; --line:#2f3438;
+  --accent:#7fb3b0; --accent-ink:#0f1c1b; --accent-soft:#233130;
+  --warn:#d4b36a; --warn-soft:#2e2819; --shadow:none;
+  --k-app:#85a9cc; --k-intl:#aea0c9; --k-rapp:#cdaa75; --k-reg:#86b196; --k-ren:#bdb67c; --k-rec:#cc938a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,"Segoe UI",Tahoma,"Geeza Pro","SF Arabic","Noto Naskh Arabic",Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 56px}
+header.top{padding:26px 0 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+h1{margin:0;font-size:1.3rem;font-weight:650;line-height:1.35}
+.sub{color:var(--muted);font-size:.85rem;margin-top:3px}
+button,select,input{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);padding:6px 13px;border-radius:9px;cursor:pointer;color:var(--ink);transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--faint)}
+.btn.icon{padding:5px 10px;color:var(--muted);flex:none}
+.btn:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible,.tab:focus-visible,.ex:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.search{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.qbox{position:relative}
+#q{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:13px 16px;font-size:1.12rem;transition:border-color .15s,background .15s}
+#q:focus{border-color:var(--accent);background:var(--card);outline:none}
+#clear{position:absolute;inset-block:0;inset-inline-end:8px;border:0;background:none;color:var(--faint);cursor:pointer;font-size:1.3rem;padding:0 8px;display:none}
+.opts{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;align-items:center}
+.opts label{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.opts select{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:4px 8px;color:var(--ink);max-width:100%}
+.opts .chk{cursor:pointer}
+.opts .chk input{accent-color:var(--accent);margin:0}
+
+.tabs{display:flex;gap:2px;margin:18px 0 0;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{border:0;background:none;padding:9px 13px;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:.93rem}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.tab i{font-style:normal;color:var(--faint);font-size:.8rem;margin-inline-start:5px;font-variant-numeric:tabular-nums}
+.tab.on i{color:var(--muted)}
+.tab.zero{opacity:.45}
+
+.summary{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 10px;color:var(--muted);font-size:.88rem;gap:10px;flex-wrap:wrap;min-height:34px}
+.summary b{color:var(--ink);font-weight:600}
+.btn.small{padding:4px 11px;font-size:.84rem;color:var(--muted)}
+
+.res{display:grid;gap:10px}
+.card{display:grid;grid-template-columns:150px 1fr;gap:16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow)}
+.thumb{width:150px;min-height:72px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden;align-self:start}
+.thumb img{width:100%;max-height:150px;object-fit:contain;display:block;cursor:zoom-in}
+.thumb.empty{color:var(--faint);font-size:.76rem;padding:8px;text-align:center;background:var(--sunk)}
+.top1{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}
+.name{font-size:1.15rem;font-weight:650;line-height:1.4;margin:0}
+.name .en{font-weight:500;color:var(--muted);direction:ltr;unicode-bidi:isolate;margin-right:10px;font-size:.98rem}
+.kind{font-size:.8rem;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.kind i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+.k-app i{background:var(--k-app)} .k-intl i{background:var(--k-intl)} .k-rapp i{background:var(--k-rapp)} .k-reg i{background:var(--k-reg)} .k-ren i{background:var(--k-ren)} .k-rec i{background:var(--k-rec)}
+.match{font-size:.72rem;color:var(--faint);margin-inline-start:8px}
+.ref{display:flex;flex-wrap:wrap;margin:8px 0 6px;background:var(--sunk);border-radius:9px;overflow:hidden;width:fit-content;max-width:100%}
+.ref div{padding:5px 15px;display:flex;align-items:baseline;gap:7px;border-inline-start:1px solid var(--line)}
+.ref div:first-child{border-inline-start:0}
+.ref small{color:var(--muted);font-size:.78rem}
+.ref b{font-size:1.05rem;font-weight:650;font-variant-numeric:tabular-nums}
+.ref .pg b{color:var(--accent)}
+.facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:2px 20px;font-size:.9rem;margin:8px 0 2px}
+.facts div{display:flex;gap:7px;min-width:0}
+.facts dt{color:var(--faint);white-space:nowrap}
+.facts dd{margin:0;overflow-wrap:anywhere}
+.num{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.opp{font-size:.85rem;margin:6px 0 0;color:var(--muted)}
+.opp.open{display:inline-block;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:2px 11px}
+.opp small{color:var(--faint);margin-inline-start:8px}
+.warn{color:var(--warn);font-size:.78rem;cursor:help}
+details{margin-top:6px;font-size:.88rem}
+summary{cursor:pointer;color:var(--muted);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"◂";display:inline-block;margin-inline-end:6px;font-size:.75rem;transition:transform .15s}
+details[open] summary::before{transform:rotate(-90deg)}
+summary:hover{color:var(--ink)}
+details p{margin:4px 0 0;color:var(--muted);padding-inline-start:16px}
+.related{font-size:.84rem;margin-top:8px;color:var(--muted)}
+.related a{color:var(--accent);cursor:pointer;margin-inline-start:10px;border-bottom:1px dotted var(--accent)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+a.btn{text-decoration:none;display:inline-block}
+a.btn.go{background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:600}
+a.btn.go:hover{border-color:var(--accent)}
+.btn.ghost{color:var(--muted);background:transparent}
+
+.welcome{text-align:center;padding:42px 12px 30px;color:var(--muted)}
+.welcome h2{margin:0 0 6px;font-size:1.1rem;color:var(--ink);font-weight:600}
+.welcome p{margin:4px auto;max-width:520px;font-size:.92rem}
+.exs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 0 4px}
+.ex{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 15px;cursor:pointer;color:var(--ink)}
+.ex:hover{border-color:var(--accent)}
+.stats{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 22px;margin-top:22px;font-size:.84rem}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+.empty-state{text-align:center;color:var(--muted);padding:44px 12px;font-size:.93rem}
+.more{display:block;margin:16px auto;padding:8px 24px}
+.more[hidden]{display:none}
+#lightbox{position:fixed;inset:0;background:rgba(10,12,12,.85);display:none;align-items:center;justify-content:center;z-index:9;padding:20px;cursor:zoom-out}
+#lightbox img{max-width:100%;max-height:100%;background:#fff;border-radius:8px}
+.hint{font-size:.8rem;color:var(--faint);margin-top:22px;line-height:1.7}
+.hint b{color:var(--muted);font-weight:600}
+@media (max-width:640px){
+  header.top{padding-top:18px}
+  h1{font-size:1.1rem}
+  .card{grid-template-columns:92px 1fr;gap:12px;padding:12px}
+  .thumb{width:92px}
+  .thumb img{max-height:110px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+  .opts label{flex-direction:column;align-items:stretch;gap:2px}
+  .opts .chk{grid-column:1/-1;flex-direction:row;align-items:center}
+  .ref{width:100%;flex-wrap:nowrap}
+  .ref div{flex:1;flex-direction:column;align-items:flex-start;gap:0;padding:4px 10px;min-width:0}
+  .ref .mo{display:none}
+  .facts{grid-template-columns:1fr}
+  .facts div{flex-direction:column;gap:0}
+  .facts dt{font-size:.78rem}
+}
+@media print{
+  body{background:#fff} .search,.tabs,.actions,.more,header .btn,.summary .btn{display:none!important}
+  .card{break-inside:avoid;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>البحث في جريدة حماية الملكية التجارية والصناعية</h1>
+      <div class="sub" id="meta"></div>
+    </div>
+    <button class="btn icon" id="theme" title="تبديل المظهر (فاتح / داكن)" aria-label="تبديل المظهر">◐</button>
+  </header>
+
+  <section class="search" aria-label="البحث">
+    <div class="qbox">
+      <input id="q" type="search" placeholder="اكتب اسم العلامة بالعربية أو الإنجليزية" autocomplete="off" autofocus>
+      <button id="clear" aria-label="مسح" title="مسح">×</button>
+    </div>
+    <div class="opts">
+      <label>الفئة <select id="cls"><option value="">الكل</option></select></label>
+      <label>العدد <select id="iss"><option value="">الكل</option></select></label>
+      <label>البحث في
+        <select id="field">
+          <option value="mark">اسم العلامة</option>
+          <option value="owner">اسم المالك / الوكيل</option>
+          <option value="all">كل النصوص</option>
+        </select>
+      </label>
+      <label>الترتيب
+        <select id="sort"><option value="rel">الأكثر مطابقة</option><option value="new">الأحدث</option><option value="old">الأقدم</option></select>
+      </label>
+      <label class="chk" title="يجد أسماء قريبة في الإملاء، ويطابق العربي مع الإنجليزي صوتياً (مودي ↔ Moody)"><input type="checkbox" id="sim" checked> أسماء مشابهة وصوتية</label>
+    </div>
+  </section>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="نوع السجل"></nav>
+  <div class="summary"><div id="count"></div><div><button class="btn small" id="csv">تصدير CSV</button></div></div>
+  <div class="res" id="res"></div>
+  <button class="btn more" id="more" hidden>عرض المزيد</button>
+  <p class="hint"><b>تنبيه:</b> النصوص مستخرجة آلياً (OCR) من ملفات ممسوحة ضوئياً وقد تحتوي أخطاء، وخاصةً أرقام الشهادات والوقوعات.
+    <span class="warn">⚠</span> قراءة غير مؤكدة · <span class="warn">≈</span> قيمة مُستنتجة. تأكد دائماً من الصفحة الأصلية قبل الاعتماد.</p>
+</div>
+<div id="lightbox"><img alt=""></div>
+
+<script src="config.js"></script>
+<script src="data.js"></script>
+<script>
+"use strict";
+const META = window.IP_META || {issues: [], count: 0, pdfs: {}}, DATA = window.IP_DATA || [];
+const CFG = window.IP_CONFIG || {};
+// pdfBase: relative folder or full URL where the gazette PDFs live; null/"" = no PDFs available (hides the "open gazette" button)
+const PDF_BASE = ("pdfBase" in CFG) ? CFG.pdfBase : "../";
+const HAS_PDF = !!PDF_BASE;
+const KINDS = {
+  app:  {label: "طلب تسجيل",       tab: "طلبات التسجيل", cls: "k-app"},
+  intl: {label: "طلب علامة دولية",  tab: "طلبات دولية",   cls: "k-intl"},
+  rapp: {label: "طلب تجديد",       tab: "طلبات التجديد", cls: "k-rapp"},
+  reg:  {label: "علامة مسجّلة",     tab: "المسجّلة",       cls: "k-reg"},
+  ren:  {label: "علامة مجدَّدة",    tab: "المجدَّدة",      cls: "k-ren"},
+  rec:  {label: "وقوعة",           tab: "الوقوعات",       cls: "k-rec"},
+};
+
+/* ---------- text normalisation (mirrors builder/common.py) ---------- */
+const AR_DIG = "٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹";
+const toAsciiDigits = s => s.replace(/[٠-٩۰-۹]/g, c => String(AR_DIG.indexOf(c) % 10));
+function norm(s) {
+  s = toAsciiDigits(s || "");
+  s = s.replace(/[ً-ٰٟـ]/g, "");
+  s = s.replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/ؤ/g, "و").replace(/ئ/g, "ي").replace(/ء/g, "");
+  s = s.toLowerCase().replace(/[^\p{L}\p{N}_\s]/gu, " ");
+  return s.replace(/\s+/g, " ").trim();
+}
+const squash = s => norm(s).replace(/ /g, "");
+const AR_PH = {"ب":"b","ت":"t","ث":"s","ج":"j","ح":"","خ":"k","د":"d","ذ":"s","ر":"r","ز":"s","س":"s","ش":"s","ص":"s","ض":"d","ط":"t","ظ":"s","ع":"","غ":"g","ف":"f","ق":"k","ك":"k","ل":"l","م":"m","ن":"n","ه":"","و":"","ي":"","ا":"","ء":"","پ":"b","چ":"j","ڤ":"f","گ":"g"};
+const LAT_MULTI = [["sch","s"],["tch","t"],["kh","k"],["gh","g"],["sh","s"],["ch","s"],["th","t"],["dh","d"],["ph","f"],["ck","k"],["qu","k"],["ee",""],["oo",""],["ou",""]];
+const LAT_ONE = {c:"k",q:"k",x:"ks",v:"f",p:"b",z:"s",w:"",y:"",h:"",a:"",e:"",i:"",o:"",u:""};
+function phonWords(s) {
+  return norm(s).split(" ").filter(Boolean).map(w => {
+    let k;
+    if (/[؀-ۿ]/.test(w)) k = [...w].map(ch => AR_PH[ch] || "").join("");
+    else {
+      let t = w.replace(/[^a-z]/g, "");
+      for (const [a, b] of LAT_MULTI) t = t.split(a).join(b);
+      k = [...t].map(ch => (ch in LAT_ONE ? LAT_ONE[ch] : ch)).join("");
+    }
+    return k.replace(/(.)\1+/g, "$1");
+  });
+}
+const phon = s => phonWords(s).join("");
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m || !n) return Math.max(m, n);
+  let prev = Array.from({length: n + 1}, (_, i) => i);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++)
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+const sim = (a, b) => 1 - lev(a, b) / Math.max(a.length, b.length);
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate = iso => { if (!iso || typeof iso !== "string") return ""; const [y, m, d] = iso.split("-"); return `${d}/${m}/${y}`; };
+const pdfHref = e => PDF_BASE + encodeURIComponent(e.pdf) + "#page=" + e.pg;
+const issueLabel = e => `العدد ${e.iss}${e.sup ? " (الملحق)" : ""}`;
+const clsText = e => (e.cl && e.cl.length ? e.cl.join(" + ") : "");
+const clsFlag = e => e.cx === 0 ? ` <span class="warn" title="الفئة غير مؤكدة: القراءة الآلية من مسح ضوئي ضعيف — تحقق منها على الصفحة">⚠</span>`
+  : e.cx === 1 ? ` <span class="warn" title="الفئة مرجّحة من عدة قراءات ومن نص البضائع">≈</span>` : "";
+const displayName = e => [e.ma, e.me].filter(Boolean).join(" ");
+const today = new Date(); today.setHours(0, 0, 0, 0);
+function daysTo(iso) { const [y, m, d] = iso.split("-").map(Number); return Math.round((new Date(y, m - 1, d) - today) / 864e5); }
+function recType(t) {  // the gazette prints e.g. "نقل ملكية (٤) علامات فارقة" — show just the kind of change
+  t = (t || "").replace(/[()\d٠-٩]/g, " ").replace(/\s+/g, " ").trim();
+  if (/نقل\s*ملكي/.test(t)) return "نقل ملكية";
+  if (/تغيير.*عنوان/.test(t)) return "تغيير عنوان";
+  if (/تغيير.*(اسم|شكل)/.test(t)) return "تغيير اسم / شكل قانوني";
+  if (/ترخيص/.test(t)) return "ترخيص باستعمال";
+  if (/شطب/.test(t)) return "شطب";
+  if (/دمج|اندماج/.test(t)) return "دمج";
+  if (/رهن/.test(t)) return "رهن";
+  return "وقوعة";
+}
+
+/* ---------- prepare data ---------- */
+const seen = new Set();
+for (const e of DATA) {
+  e._nm = e.nm || squash(displayName(e));
+  e._ph = e.ph || phon(displayName(e));
+  e._own = norm([e.ow, e.ag, e.tp].join(" "));
+  e._all = norm([displayName(e), e.ow, e.ag, e.gd, e.dtl, e.tp].join(" "));
+  e._ar = squash(e.ma || ""); e._en = squash(e.me || "");
+  e._words = new Set([...norm(e.ma || "").split(" "), ...norm(e.me || "").split(" ")].filter(w => w.length >= 2));
+  e._phw = new Set([...phonWords(e.ma || ""), ...phonWords(e.me || "")].filter(k => k.length >= 2));
+  e._phs = [phon(e.ma || ""), phon(e.me || "")].filter(k => k.length >= 2);
+  // the same entry read twice from one page (overlapping crops) — keep the first
+  const sig = [e.k, e.pdf, e.pg, e.no || "", e._nm].join("|");
+  e._dup = !!(e._nm && e.no && seen.has(sig)); seen.add(sig);
+}
+const byApp = new Map();
+for (const e of DATA) if ((e.k === "app" || e.k === "intl") && e.no) byApp.set(e.no + "|" + (e.dt || ""), e);
+const certsOfApp = new Map();
+for (const e of DATA) if (e.k === "reg" && e.an) {
+  const a = byApp.get(e.an + "|" + (e.ad || ""));
+  if (a) { e._app = a; (certsOfApp.get(a.id) || certsOfApp.set(a.id, []).get(a.id)).push(e); }
+}
+
+/* ---------- UI setup ---------- */
+const state = {kind: "all", shown: 30, list: [], counts: {}, total: 0};
+function setup() {
+  const iss = META.issues || [];
+  const last = iss.length ? iss[iss.length - 1] : null;
+  $("meta").innerHTML = DATA.length
+    ? `الأعداد من <bdi dir="ltr">${iss[0][0]}</bdi> إلى <bdi dir="ltr">${last[0]}</bdi> · <bdi dir="ltr">${DATA.filter(e => !e._dup).length.toLocaleString("en")}</bdi> سجلاً · آخر تحديث <bdi dir="ltr">${esc((META.built || "").split("-").reverse().join("/"))}</bdi>`
+    : "لم يتم بناء الفهرس بعد — شغّل ملف Update_Index.bat.";
+  for (let c = 1; c <= 45; c++) $("cls").insertAdjacentHTML("beforeend", `<option value="${c}">الفئة ${c}</option>`);
+  [...iss].reverse().forEach(([n, my]) => $("iss").insertAdjacentHTML("beforeend", `<option value="${n}">العدد ${n}${my ? " — " + esc(my) : ""}</option>`));
+  ["cls", "iss", "field", "sim", "sort"].forEach(id => $(id).addEventListener("change", () => { state.shown = 30; run(); }));
+  $("q").addEventListener("input", () => { state.shown = 30; $("clear").style.display = $("q").value ? "block" : "none"; debounced(); });
+  $("clear").addEventListener("click", () => { $("q").value = ""; $("clear").style.display = "none"; state.shown = 30; run(); $("q").focus(); });
+  $("more").addEventListener("click", () => { state.shown += 30; render(); });
+  $("csv").addEventListener("click", exportCsv);
+  $("theme").addEventListener("click", () => {
+    const r = document.documentElement, cur = r.dataset.theme || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light");
+    r.dataset.theme = cur === "dark" ? "light" : "dark";
+    try { localStorage.setItem("ip-theme", r.dataset.theme); } catch (e) {}
+  });
+  try { const t = localStorage.getItem("ip-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  $("lightbox").addEventListener("click", () => $("lightbox").style.display = "none");
+  document.addEventListener("keydown", e => { if (e.key === "Escape") $("lightbox").style.display = "none"; });
+  const p = new URLSearchParams(location.search); if (p.get("q")) { $("q").value = p.get("q"); $("clear").style.display = "block"; }
+  run();
+}
+let timer; const debounced = () => { clearTimeout(timer); timer = setTimeout(run, 140); };
+
+/* ---------- search ---------- */
+function scoreEntry(e, q, qs, qp, field, useSim, qwords) {
+  if (field === "mark") {
+    const n = e._nm;
+    if (!n) return 0;
+    if (e._ar === qs || e._en === qs || n === qs) return [100, "تطابق تام"];
+    if (e._ar.startsWith(qs) || e._en.startsWith(qs) || n.startsWith(qs)) return [82, "يبدأ بـ"];
+    if (qwords.length === 1 && qs.length >= 2 && e._words.has(qs)) return [76, "كلمة مطابقة"];
+    if (qs.length >= 2 && n.includes(qs)) return [64, "يحتوي"];
+    if (!useSim) return 0;
+    if (qs.length >= 3) {
+      let best = 0;
+      for (const cand of [e._ar, e._en]) {
+        if (cand.length >= 3 && Math.abs(cand.length - qs.length) <= Math.max(2, qs.length * .4)) best = Math.max(best, sim(qs, cand));
+      }
+      if (best >= (qs.length >= 6 ? 0.68 : 0.74)) return [40 + best * 20, "مشابه إملائياً"];
+    }
+    if (qp.length >= 2) {
+      // a 2-letter consonant skeleton (مودي = md) also matches unrelated names (محمد), so rank those lower
+      if (qwords.length === 1 && e._phw.has(qp)) return qp.length >= 3 ? [62, "مشابه صوتياً"] : [44, "مشابه صوتياً (ضعيف)"];
+      if (qwords.length > 1 && e._phs.some(p => p === qp || (qp.length >= 4 && p.includes(qp)))) return [50, "مشابه صوتياً"];
+    }
+    return 0;
+  }
+  const hay = field === "owner" ? e._own : e._all;
+  const words = norm(q);
+  if (words && hay.includes(words)) return [60, field === "owner" ? "في الاسم" : "في النص"];
+  return 0;
+}
+function run() {
+  const q = $("q").value.trim(), cls = $("cls").value, iss = $("iss").value, field = $("field").value;
+  const qs = squash(q), qp = phon(q), useSim = $("sim").checked, qwords = norm(q).split(" ").filter(Boolean);
+  const matched = [], counts = {};
+  const browsing = !q && (cls || iss);
+  state.idle = !q && !cls && !iss;                       // nothing asked yet -> welcome screen
+  if (!state.idle) for (const e of DATA) {
+    if (e._dup) continue;
+    if (cls && !(e.cl || []).includes(+cls)) continue;
+    if (iss && e.iss !== +iss) continue;
+    let s;
+    if (!q) s = [0, ""]; else { s = scoreEntry(e, q, qs, qp, field, useSim, qwords); if (!s) continue; }
+    counts[e.k] = (counts[e.k] || 0) + 1;
+    matched.push([s[0], s[1], e]);
+  }
+  state.counts = counts; state.total = matched.length;
+  if (state.kind !== "all" && !counts[state.kind] && matched.length) state.kind = "all";
+  const out = state.kind === "all" ? matched : matched.filter(r => r[2].k === state.kind);
+  const sort = $("sort").value;
+  const key = e => e.iss * 1e5 + e.pg;
+  out.sort((a, b) =>
+    sort === "new" ? key(b[2]) - key(a[2]) :
+    sort === "old" ? key(a[2]) - key(b[2]) :
+    (b[0] - a[0]) || (key(b[2]) - key(a[2])));
+  state.list = out; renderTabs(); render();
+}
+function renderTabs() {
+  const el = $("tabs");
+  if (state.idle || !state.total) { el.innerHTML = ""; return; }
+  const items = [["all", "الكل", state.total], ...Object.keys(KINDS).map(k => [k, KINDS[k].tab, state.counts[k] || 0])];
+  el.innerHTML = items.filter(([k, , n]) => k === "all" || n).map(([k, label, n]) =>
+    `<button class="tab${state.kind === k ? " on" : ""}" role="tab" data-tab="${k}">${label}<i>${n.toLocaleString("en")}</i></button>`).join("");
+}
+
+/* ---------- rendering ---------- */
+function fact(label, value, extra = "") { return value ? `<div><dt>${label}</dt><dd>${value}${extra}</dd></div>` : ""; }
+const numSpan = v => v ? `<span class="num">${esc(v)}</span>` : "";
+function cardHtml([score, why, e]) {
+  const K = KINDS[e.k];
+  const name = displayName(e);
+  const q = $("q").value.trim();
+  const flag = (e.k === "reg" || e.k === "ren" || e.k === "rec") && e.cf === 0 && e.no ? ` <span class="warn" title="الرقم مقروء آلياً من مسح ضوئي — تحقق منه على الصفحة">⚠</span>` : (e.cf === 2 ? ` <span class="warn" title="رقم مُستنتج من تسلسل أرقام الشهادات المجاورة">≈</span>` : "");
+  const thumb = e.th ? `<div class="thumb"><img loading="lazy" src="thumbs/${esc(e.th)}" alt="${esc(name)}" data-full="1"></div>` : `<div class="thumb empty">لا توجد صورة</div>`;
+  const facts = [];
+  if (e.k === "app" || e.k === "intl" || e.k === "rapp") {
+    facts.push(fact("رقم الطلب", numSpan(e.no)), fact("تاريخ الطلب", numSpan(fmtDate(e.dt))));
+    if (e.k === "rapp") facts.push(fact("المسجّلة أساساً برقم", numSpan(e.on) + (e.od ? " / " + numSpan(fmtDate(e.od)) : "")));
+    if (e.k === "intl") facts.push(fact("التسجيل الدولي", numSpan(e.in) + (e.idt ? " / " + numSpan(fmtDate(e.idt)) : "")));
+    facts.push(fact(e.k === "intl" ? "صاحب الطلب" : "صاحب الطلب", esc(e.ow)), fact("الوكيل", esc(e.ag)));
+  } else if (e.k === "reg") {
+    facts.push(fact("رقم التسجيل", numSpan(e.no) + flag), fact("تاريخ التسجيل", numSpan(fmtDate(e.dt))),
+      fact("رقم الطلب", numSpan(e.an)), fact("تاريخ الطلب", numSpan(fmtDate(e.ad))),
+      fact("المالك", esc(e.ow)), fact("الوكيل", esc(e.ag)), fact("نهاية الحماية", numSpan(fmtDate(e.ed))));
+  } else if (e.k === "ren") {
+    facts.push(fact("رقم التجديد", numSpan(e.no) + flag), fact("تاريخ التجديد", numSpan(fmtDate(e.dt))),
+      fact("المسجّلة أساساً برقم", numSpan(e.on) + (e.od ? " / " + numSpan(fmtDate(e.od)) : "")),
+      fact("المالك", esc(e.ow)), fact("الوكيل", esc(e.ag)), fact("نهاية الحماية", numSpan(fmtDate(e.ed))));
+  } else {
+    facts.push(fact("نوع الوقوعة", recType(e.tp) === "وقوعة" ? "" : esc(recType(e.tp))), fact("رقم تسجيل العلامة", numSpan(e.no) + flag), fact("تاريخ تسجيلها", numSpan(fmtDate(e.dt))),
+      fact("مقدّم الطلب", esc(e.ow)));
+  }
+  let opp = "";
+  if (e.oe) {
+    const d = daysTo(e.oe);
+    opp = d >= 0
+      ? `<div class="opp open">فترة الاعتراض جارية — تنتهي ${fmtDate(e.oe)} (باقي ${d} يوماً)</div>`
+      : `<div class="opp">انتهت فترة الاعتراض في ${fmtDate(e.oe)}<small>النشر ${fmtDate(e.os)} · ٩٠ يوماً</small></div>`;
+  }
+  const more = e.gd ? `<details><summary>البضائع / الخدمات</summary><p>${esc(e.gd)}</p></details>` : "";
+  const det = e.dtl ? `<details><summary>تفاصيل الوقوعة</summary><p>${esc(e.tp || "")}${e.tp ? "<br>" : ""}${esc(e.dtl)}${e.rq ? "<br>رقم طلب الوقوعة: " + numSpan(e.rq) : ""}</p></details>` : "";
+  let rel = "";
+  const certs = certsOfApp.get(e.id);
+  if (certs) rel = `<div class="related">سُجّلت لاحقاً:${certs.map(c => `<a data-jump="${c.id}">${issueLabel(c)} — ص ${c.pg}</a>`).join("")}</div>`;
+  else if (e._app) rel = `<div class="related">نُشر طلبها في:<a data-jump="${e._app.id}">${issueLabel(e._app)} — ص ${e._app.pg}</a></div>`;
+  const ref = `${name || "علامة (شعار)"} — الفئة ${clsText(e) || "؟"} — ${issueLabel(e)} — الصفحة ${e.pg}`;
+  const shownName = e.ma || (e.me ? "" : "(شعار — انظر الصورة)");
+  return `<article class="card" data-id="${e.id}">
+    ${thumb}
+    <div>
+      <div class="top1">
+        <h3 class="name">${esc(shownName)}${e.me ? `<span class="en">${esc(e.me)}</span>` : ""}</h3>
+        <span><span class="kind ${K.cls}"><i></i>${K.label}</span>${why && q ? `<span class="match">${why}</span>` : ""}</span>
+      </div>
+      <div class="ref">
+        <div><small>الفئة</small><b>${esc(clsText(e)) || "؟"}</b>${clsFlag(e)}</div>
+        <div><small>${e.sup ? "ملحق العدد" : "العدد"}</small><b>${e.iss}</b>${e.my ? `<small class="mo">${esc(e.my)}</small>` : ""}</div>
+        <div class="pg"><small>الصفحة</small><b>${e.pg}</b></div>
+      </div>
+      ${opp}
+      <dl class="facts">${facts.join("")}</dl>
+      ${more}${det}${rel}
+      <div class="actions">
+        ${HAS_PDF ? `<a class="btn go" href="${pdfHref(e)}" target="_blank" rel="noopener">فتح الجريدة على الصفحة ${e.pg}</a>` : ""}
+        <button class="btn ghost" data-copy="${esc(ref)}">نسخ المرجع</button>
+      </div>
+    </div></article>`;
+}
+function welcomeHtml() {
+  const live = DATA.filter(e => !e._dup), c = k => live.filter(e => e.k === k).length;
+  return `<div class="welcome">
+    <h2>ابحث عن علامة</h2>
+    <p>اكتب الاسم بالعربية أو الإنجليزية — تظهر الفئة ورقم العدد ورقم الصفحة وبقية البيانات المتاحة.</p>
+    <div class="exs"><button class="ex" data-ex="مودي">مودي</button><button class="ex" data-ex="Moody">Moody</button><button class="ex" data-ex="نيفيا">نيفيا</button></div>
+    <div class="stats"><span><b>${c("app").toLocaleString("en")}</b> طلب تسجيل</span><span><b>${c("reg").toLocaleString("en")}</b> علامة مسجّلة</span><span><b>${c("ren").toLocaleString("en")}</b> مجدَّدة</span><span><b>${c("rec").toLocaleString("en")}</b> وقوعة</span></div>
+  </div>`;
+}
+function render() {
+  const list = state.list, n = list.length;
+  $("csv").style.display = n ? "" : "none";
+  if (state.idle) {
+    $("count").textContent = ""; $("res").innerHTML = DATA.length ? welcomeHtml() : ""; $("more").hidden = true; return;
+  }
+  $("count").innerHTML = n ? `<b>${n.toLocaleString("en")}</b> نتيجة` : "";
+  $("res").innerHTML = n ? list.slice(0, state.shown).map(cardHtml).join("")
+    : `<div class="empty-state">لا توجد نتائج.<br>جرّب جزءاً من الاسم، أو فعّل «أسماء مشابهة وصوتية»، أو أزل مرشّح الفئة أو العدد.<br>إن كانت العلامة شعاراً بلا نص فابحث باسم المالك (من «البحث في»).</div>`;
+  $("more").hidden = n <= state.shown;
+  if (n > state.shown) $("more").textContent = `عرض المزيد (${(n - state.shown).toLocaleString("en")} متبقية)`;
+}
+document.addEventListener("click", ev => {
+  const t = ev.target;
+  if (t.matches("img[data-full]")) { const lb = $("lightbox"); lb.querySelector("img").src = t.src; lb.style.display = "flex"; }
+  if (t.dataset && t.dataset.copy) navigator.clipboard.writeText(t.dataset.copy).then(() => { const o = t.textContent; t.textContent = "تم النسخ ✓"; setTimeout(() => t.textContent = o, 1400); });
+  if (t.dataset && t.dataset.tab) { state.kind = t.dataset.tab; state.shown = 30; run(); }
+  if (t.dataset && t.dataset.ex) { $("q").value = t.dataset.ex; $("clear").style.display = "block"; run(); }
+  if (t.dataset && t.dataset.jump) {
+    const id = +t.dataset.jump, e = DATA[id];
+    $("q").value = e.ma || e.me || ""; $("clear").style.display = "block"; state.kind = "all";
+    $("cls").value = ""; $("iss").value = ""; $("field").value = "mark"; run(); window.scrollTo({top: 0, behavior: "smooth"});
+  }
+});
+function exportCsv() {
+  const rows = [["النوع", "اسم العلامة (عربي)", "اسم العلامة (إنجليزي)", "الفئة", "العدد", "ملحق", "الصفحة", "الرقم", "التاريخ", "رقم الطلب", "تاريخ الطلب", "صاحب الطلب/المالك", "الوكيل", "نهاية الاعتراض", "نوع الوقوعة", "الملف"]];
+  for (const [, , e] of state.list) rows.push([KINDS[e.k].label, e.ma || "", e.me || "", clsText(e), e.iss, e.sup ? "نعم" : "", e.pg, e.no || "", e.dt || "", e.an || "", e.ad || "", e.ow || "", e.ag || "", e.oe || "", e.k === "rec" ? recType(e.tp) : "", e.pdf]);
+  const csv = "﻿" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+  a.download = "نتائج-البحث.csv"; a.click();
+}
+setup();
+</script>
+</body>
+</html>
